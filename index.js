@@ -43,10 +43,25 @@ const query = {_id: new ObjectId(id)}
 const result = await blogs.findOne(query)
 res.send(result)
 })
+// adding blog by user 
+app.post('/add-blog', async (req, res)=>{
+  const blog = req.body
+  const result = await blogs.insertOne(blog)
+  res.send(result)
+})
 
 
 
+// get comment from database 
+app.get("/allComments/:id", async (req, res)=>{
+  const id = req.params.id;
+  const filter= {
+    postId: id
+  }
+  const result = await comments.find(filter).toArray();
+ res.send(result)
 
+})
 // save comment to the database
 app.post('/comments', async (req, res)=>{
   const comment = req.body;
