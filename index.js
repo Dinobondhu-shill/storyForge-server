@@ -44,6 +44,7 @@ const query = {_id: new ObjectId(id)}
 const result = await blogs.findOne(query)
 res.send(result)
 })
+
 // adding blog by user 
 app.post('/add-blog', async (req, res)=>{
   const blog = req.body
@@ -85,6 +86,32 @@ app.get('/wishlist/:email', async(req, res)=>{
 app.post('/wishlist', async (req, res)=>{
   const card = req.body;
   const result = await wishList.insertOne(card)
+  res.send(result)
+})
+
+// update blog
+app.put('/all-blogs/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = {
+    _id: new ObjectId(id)
+  };
+  const options = {
+    upsert: true
+  };
+ 
+  const updatedItem = req.body
+  const Item = {
+    $set: {
+      title: updatedItem.title,
+      category: updatedItem.category,
+      short_description: updatedItem.short_description,
+      long_description: updatedItem.long_description,
+      image: updatedItem.image,
+    }
+  }
+  
+  const result = await blogs.updateOne(filter, Item, options)
+  console.log(result)
   res.send(result)
 })
 
