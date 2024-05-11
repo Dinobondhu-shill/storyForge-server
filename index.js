@@ -29,6 +29,7 @@ async function run() {
 
     const blogs = client.db("storyForge").collection("blogs");
     const comments = client.db("storyForge").collection("comments");
+    const wishList = client.db("storyForge").collection("wishlist");
 
 // getting blog data from database collection
 app.get("/blogs", async (req,res)=>{
@@ -66,6 +67,24 @@ app.get("/allComments/:id", async (req, res)=>{
 app.post('/comments', async (req, res)=>{
   const comment = req.body;
   const result = await comments.insertOne(comment)
+  res.send(result)
+})
+
+// get wishlist blog
+app.get('/wishlist/:email', async(req, res)=>{
+  const email = req.params.email
+  const filter= {
+    userEmail: email
+  }
+  const result = await wishList.find(filter).toArray();
+ res.send(result)
+
+})
+
+// save wishlist blog
+app.post('/wishlist', async (req, res)=>{
+  const card = req.body;
+  const result = await wishList.insertOne(card)
   res.send(result)
 })
     // Send a ping to confirm a successful connection
