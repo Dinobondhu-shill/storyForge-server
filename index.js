@@ -45,6 +45,21 @@ const result = await blogs.findOne(query)
 res.send(result)
 })
 
+// get sorted data
+app.get("/featured-blog", async(req, res)=>{
+  const sortedBlogs = await blogs.aggregate([
+    {
+      $addFields: {
+        length: { $strLenCP: "$long_description" }
+      }
+    },
+    {
+      $sort: { length: -1 }
+    }
+  ]).toArray();
+ res.send(sortedBlogs)
+})
+
 // adding blog by user 
 app.post('/add-blog', async (req, res)=>{
   const blog = req.body
