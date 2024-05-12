@@ -55,21 +55,33 @@ app.post("/jwt", async (req, res) => {
 });
 
 //clearing Token
-app.post("/logout", async (req, res) => {
-  const user = req.body;
-  console.log("logging out", user);
-  res
-    .clearCookie("token", { ...cookieOptions, maxAge: 0 })
-    .send({ success: true });
-});
+// app.post("/logout", async (req, res) => {
+//   const user = req.body;
+//   console.log("logging out", user);
+//   res
+//     .clearCookie("token", { ...cookieOptions, maxAge: 0 })
+//     .send({ success: true });
+// });
 
 
 // getting blog data from database collection
-app.get("/blogs", async (req,res)=>{
-  const cursor = blogs.find();
+app.get("/blogs", async (req, res) => {
+  const filter = req.query.filter;
+  const search = req.query.search;
+  let query = {};
+
+  if (search) {
+    query.title = { $regex: search, $options: "i" };
+  }
+
+  if (filter) {
+    query.category = filter;
+  }
+
+  const cursor = blogs.find(query);
   const result = await cursor.toArray();
-  res.send(result)
-})
+  res.send(result);
+});
 // get single data for blog details
 app.get("/all-blogs/:id", async(req, res)=>{
 const id = req.params.id
