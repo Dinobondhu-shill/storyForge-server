@@ -1,14 +1,28 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+};
 // Mongodb Database setup
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.axtsmlj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -30,6 +44,25 @@ async function run() {
     const blogs = client.db("storyForge").collection("blogs");
     const comments = client.db("storyForge").collection("comments");
     const wishList = client.db("storyForge").collection("wishlist");
+
+//creating Token
+app.post("/jwt", async (req, res) => {
+  const user = req.body;
+  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn:'7d'});
+
+  res.cookie("token", token, cookieOptions).send({ success: true });
+  res.send(user)
+});
+
+//clearing Token
+app.post("/logout", async (req, res) => {
+  const user = req.body;
+  console.log("logging out", user);
+  res
+    .clearCookie("token", { ...cookieOptions, maxAge: 0 })
+    .send({ success: true });
+});
+
 
 // getting blog data from database collection
 app.get("/blogs", async (req,res)=>{
